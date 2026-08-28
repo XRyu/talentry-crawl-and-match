@@ -1,0 +1,24 @@
+[
+  {
+    "id": "101",
+    "title": "Senior MLOps Engineer",
+    "company": "Example Netherlands",
+    "departments": ["Data & Analytics"],
+    "locations": ["Utrecht"],
+    "countries": ["NL"],
+    "apply_url": "https://example.test/apply/101",
+    "talentry_url": "https://example.test/jobs/101",
+    "file_path": "jobs/101_mlops-engineer.md"
+  },
+  {
+    "id": "102",
+    "title": "Consultant SAP Utilities",
+    "company": "Example SE",
+    "departments": ["Utilities"],
+    "locations": ["Dortmund"],
+    "countries": ["DE"],
+    "apply_url": "https://example.test/apply/102",
+    "talentry_url": "https://example.test/jobs/102",
+    "file_path": "jobs/102_sap-consultant.md"
+  }
+]

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Talentry - Crawl & Match"
+  short_description: "Crawl verified Talentry jobs and rank candidates"
+  default_prompt: "Use $talentry-crawl-and-match to match this candidate against my workspace jobs."
+policy:
+  allow_implicit_invocation: true
