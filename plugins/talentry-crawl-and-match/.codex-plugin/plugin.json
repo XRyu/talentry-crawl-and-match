@@ -1,16 +1,16 @@
 {
   "name": "talentry-crawl-and-match",
-  "version": "0.1.0+codex.20260828124347",
+  "version": "0.1.0+codex.20260828132224",
   "description": "Securely populate missing Talentry jobs and rank them against candidate documents or text.",
   "author": {
-    "name": "Local developer"
+    "name": "XRyuu (T.R.)"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Talentry - Crawl & Match",
     "shortDescription": "Crawl verified Talentry jobs and rank candidates",
     "longDescription": "Compare candidate material with Markdown job openings, securely crawling a verified Talentry share when the workspace job corpus is missing.",
-    "developerName": "Local developer",
+    "developerName": "XRyuu (T.R.)",
     "category": "Productivity",
     "capabilities": [
       "Interactive",
