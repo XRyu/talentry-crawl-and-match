@@ -1,6 +1,6 @@
 {
   "name": "talentry-crawl-and-match",
-  "version": "0.1.0+codex.20260828132224",
+  "version": "0.1.0+codex.20260828133422",
   "description": "Securely populate missing Talentry jobs and rank them against candidate documents or text.",
   "author": {
     "name": "XRyuu (T.R.)"

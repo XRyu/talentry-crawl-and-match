@@ -11,6 +11,7 @@ A Codex plugin that compares a supplied CV or candidate profile with open positi
 - Requests explicit permission before contacting Talentry or creating job files.
 - Verifies the Talentry tenant and referral APIs before downloading job listings.
 - Asks focused follow-up questions when candidate information is too ambiguous to rank reliably.
+- Evaluates every valid job profile in the available `jobs/` corpus before ranking the shortlist.
 - Scores and ranks credible matches using candidate evidence, job requirements, seniority, and practical constraints.
 
 The result is decision support only. Scores are comparative fit estimates, not hiring probabilities or automated hiring decisions.

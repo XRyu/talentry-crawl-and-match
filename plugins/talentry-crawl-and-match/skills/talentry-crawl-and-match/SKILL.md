@@ -44,19 +44,21 @@ python3 <resolved-crawler-path> --url <user-supplied-url> --output-dir <workspac
 
 Do not refresh an existing corpus unless the user explicitly requests a refresh. Never overwrite existing job data merely because the matcher was invoked.
 
-## Retrieve a Broad Pool
+## Load Every Job Profile
 
 Save the extracted candidate text to a temporary UTF-8 file so candidate data is not placed directly in a command argument. Resolve the helper relative to this skill: the plugin root is two directories above this `SKILL.md`, and the helper is `scripts/retrieve_jobs.py` beneath that root.
 
 Run the helper with:
 
 ```text
-python3 <resolved-helper-path> --candidate-file <temporary-text-path> --jobs-dir <workspace-jobs-path> --limit <pool-size>
+python3 <resolved-helper-path> --candidate-file <temporary-text-path> --jobs-dir <workspace-jobs-path>
 ```
 
-Set `pool-size` to the greater of 25 or five times the requested shortlist size. Read its JSON output. `retrieval_score` is only a lexical recall signal; never show it as the final fit score or use it without full semantic review.
+Read its JSON output. It must contain every valid numbered job Markdown file in the corpus, including jobs with a `retrieval_score` of zero. Treat `retrieval_score` only as an ordering aid; never show it as the final fit score or use it to exclude a job without full semantic review.
 
-Read every returned Markdown job file in full. If the helper reports warnings or skipped files, disclose them concisely. If retrieval fails because the candidate text is empty, the jobs directory is absent, or its inputs are unreadable, explain the specific issue and stop.
+Read every returned Markdown job file in full and evaluate every valid job profile before producing the shortlist. If the helper reports warnings or skipped files, disclose them concisely. If retrieval fails because the candidate text is empty, the jobs directory is absent, or its inputs are unreadable, explain the specific issue and stop.
+
+Confirm that the number of returned results plus explicitly skipped invalid files equals the number of numbered job Markdown files discovered in the corpus. For a corpus too large to review safely in one pass, process it in exhaustive non-overlapping batches and maintain a ledger of evaluated absolute paths. Do not sample, stop after finding enough plausible matches, or use lexical rank to omit later profiles. Finalize the shortlist only after every returned profile appears in the ledger.
 
 ## Evaluate and Rank
 
@@ -73,7 +75,7 @@ Rank by final evidence-based fit, not by lexical retrieval order. Return fewer p
 
 ## Output
 
-Begin with a short candidate-match summary, the requested shortlist size, and any necessary assumptions. For each role include:
+Begin with a short candidate-match summary, the requested shortlist size, the total number of available valid profiles evaluated, any skipped invalid files, and any necessary assumptions. For each role include:
 
 - Rank and final fit score, including the four score components
 - Job title, company, department, locations, and countries

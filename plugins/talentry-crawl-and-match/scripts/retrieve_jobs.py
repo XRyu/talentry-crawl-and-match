@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a broad lexical job pool for later semantic candidate matching."""
+"""Load and lexically order every job for later semantic candidate matching."""
 
 import argparse
 import json
@@ -196,12 +196,10 @@ def load_jobs(jobs_dir: Path) -> Tuple[str, Tuple[JobRecord, ...], Tuple[str, ..
     return source, tuple(jobs), tuple(warnings), tuple(skipped_files)
 
 
-def retrieve(candidate_text: str, jobs_dir: Path, limit: int) -> RetrievalReport:
-    """Return a broad deterministic lexical pool for later semantic review."""
+def retrieve(candidate_text: str, jobs_dir: Path) -> RetrievalReport:
+    """Return every valid job in deterministic lexical-relevance order."""
     if not candidate_text.strip():
         raise ValueError("candidate text is empty")
-    if limit < 1:
-        raise ValueError("limit must be at least 1")
 
     source, jobs, warnings, skipped_files = load_jobs(jobs_dir)
     candidate_terms = set(normalize_terms(candidate_text))
@@ -218,13 +216,12 @@ def retrieve(candidate_text: str, jobs_dir: Path, limit: int) -> RetrievalReport
             weighted_terms[term] * (log((1 + len(jobs)) / (1 + document_frequency[term])) + 1.0)
             for term in matched
         )
-        if score > 0:
-            results.append(RetrievalResult(job=job, retrieval_score=round(score, 6), matched_terms=matched))
+        results.append(RetrievalResult(job=job, retrieval_score=round(score, 6), matched_terms=matched))
 
     results.sort(key=lambda result: (-result.retrieval_score, result.job.title.casefold(), result.job.job_id))
     return RetrievalReport(
         source=source,
-        results=tuple(results[:limit]),
+        results=tuple(results),
         warnings=warnings,
         skipped_files=skipped_files,
     )
@@ -260,12 +257,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate-file", required=True, type=Path)
     parser.add_argument("--jobs-dir", required=True, type=Path)
-    parser.add_argument("--limit", required=True, type=int)
     arguments = parser.parse_args(argv)
 
     try:
         candidate_text = arguments.candidate_file.read_text(encoding="utf-8")
-        report = retrieve(candidate_text, arguments.jobs_dir, arguments.limit)
+        report = retrieve(candidate_text, arguments.jobs_dir)
     except (OSError, UnicodeError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2

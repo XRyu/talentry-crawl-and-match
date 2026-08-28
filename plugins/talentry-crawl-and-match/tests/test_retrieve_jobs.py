@@ -71,7 +71,7 @@ class RetrieveJobsTests(unittest.TestCase):
         except ImportError as exc:
             self.fail(f"broad retrieval is missing: {exc}")
 
-        report = retrieve(self.candidate, self.jobs_dir, limit=2)
+        report = retrieve(self.candidate, self.jobs_dir)
 
         self.assertEqual(report.results[0].job.job_id, "101")
         self.assertGreater(report.results[0].retrieval_score, report.results[1].retrieval_score)
@@ -82,7 +82,7 @@ class RetrieveJobsTests(unittest.TestCase):
 
         with copied_fixture_jobs() as jobs_dir:
             (jobs_dir / "index.json").write_text("[]", encoding="utf-8")
-            report = retrieve(self.candidate, jobs_dir, limit=5)
+            report = retrieve(self.candidate, jobs_dir)
 
         self.assertEqual(report.source, "markdown-scan")
         self.assertTrue(any("stale" in warning.casefold() for warning in report.warnings))
@@ -90,7 +90,7 @@ class RetrieveJobsTests(unittest.TestCase):
     def test_matching_index_is_used_as_metadata_source(self):
         from scripts.retrieve_jobs import retrieve
 
-        report = retrieve(self.candidate, self.jobs_dir, limit=5)
+        report = retrieve(self.candidate, self.jobs_dir)
 
         self.assertEqual(report.source, "index+markdown")
         self.assertEqual(report.warnings, ())
@@ -100,7 +100,7 @@ class RetrieveJobsTests(unittest.TestCase):
 
         with copied_fixture_jobs() as jobs_dir:
             (jobs_dir / "README.md").write_text("# Job catalog", encoding="utf-8")
-            report = retrieve(self.candidate, jobs_dir, limit=5)
+            report = retrieve(self.candidate, jobs_dir)
 
         self.assertEqual(report.source, "index+markdown")
         self.assertEqual(report.warnings, ())
@@ -109,7 +109,7 @@ class RetrieveJobsTests(unittest.TestCase):
     def test_country_names_match_country_code_metadata(self):
         from scripts.retrieve_jobs import retrieve
 
-        report = retrieve("MLOps engineer open to the Netherlands", self.jobs_dir, limit=2)
+        report = retrieve("MLOps engineer open to the Netherlands", self.jobs_dir)
 
         self.assertEqual(report.results[0].job.job_id, "101")
         self.assertIn("netherlands", report.results[0].matched_terms)
@@ -121,7 +121,7 @@ class RetrieveJobsTests(unittest.TestCase):
             bad = jobs_dir / "999_broken.md"
             bad.write_text("---\nid: 999\n# no closing frontmatter", encoding="utf-8")
             try:
-                report = retrieve(self.candidate, jobs_dir, limit=5)
+                report = retrieve(self.candidate, jobs_dir)
             except ValueError as exc:
                 self.fail(f"one malformed job stopped retrieval: {exc}")
 
@@ -137,8 +137,6 @@ class RetrieveJobsTests(unittest.TestCase):
                 str(FIXTURES / "candidate_mlops.txt"),
                 "--jobs-dir",
                 str(self.jobs_dir),
-                "--limit",
-                "2",
             ],
             check=False,
             capture_output=True,
@@ -151,6 +149,33 @@ class RetrieveJobsTests(unittest.TestCase):
         except json.JSONDecodeError as exc:
             self.fail(f"CLI did not emit JSON: {exc}")
         self.assertEqual(payload["results"][0]["job_id"], "101")
+
+    def test_cli_returns_every_valid_job_including_zero_term_matches(self):
+        with copied_fixture_jobs() as jobs_dir:
+            unrelated = jobs_dir / "999_pastry-chef.md"
+            unrelated.write_text(
+                "---\nid: 999\ntitle: Pastry Chef\n---\nCreates plated desserts and chocolate sculptures.\n",
+                encoding="utf-8",
+            )
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    "--candidate-file",
+                    str(FIXTURES / "candidate_mlops.txt"),
+                    "--jobs-dir",
+                    str(jobs_dir),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        payload = json.loads(completed.stdout)
+        self.assertEqual({result["job_id"] for result in payload["results"]}, {"101", "102", "999"})
+        unrelated_result = next(result for result in payload["results"] if result["job_id"] == "999")
+        self.assertEqual(unrelated_result["retrieval_score"], 0)
 
 
 if __name__ == "__main__":
