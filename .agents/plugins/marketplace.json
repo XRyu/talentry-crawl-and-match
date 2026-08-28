@@ -1,0 +1,20 @@
+{
+  "name": "talentry-crawl-and-match",
+  "interface": {
+    "displayName": "Talentry - Crawl & Match"
+  },
+  "plugins": [
+    {
+      "name": "talentry-crawl-and-match",
+      "source": {
+        "source": "local",
+        "path": "./plugins/talentry-crawl-and-match"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

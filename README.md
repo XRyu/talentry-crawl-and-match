@@ -17,19 +17,29 @@ The result is decision support only. Scores are comparative fit estimates, not h
 
 ## Repository layout
 
-- `.codex-plugin/plugin.json` — plugin manifest
-- `skills/talentry-crawl-and-match/` — matching workflow and Codex metadata
-- `scripts/talentry_crawler.py` — verified Talentry crawler
-- `scripts/retrieve_jobs.py` — local candidate-to-job retrieval helper
-- `tests/` — unit, integration, and security tests with synthetic fixtures
+- `.agents/plugins/marketplace.json` — repository marketplace catalog
+- `plugins/talentry-crawl-and-match/.codex-plugin/plugin.json` — plugin manifest
+- `plugins/talentry-crawl-and-match/skills/` — matching workflow and metadata
+- `plugins/talentry-crawl-and-match/scripts/talentry_crawler.py` — verified Talentry crawler
+- `plugins/talentry-crawl-and-match/scripts/retrieve_jobs.py` — local retrieval helper
+- `plugins/talentry-crawl-and-match/tests/` — tests with synthetic fixtures
+
+## Add the marketplace in ChatGPT
+
+1. Clone this repository locally.
+2. Open the cloned repository in Work mode or Codex in the ChatGPT desktop app.
+3. Restart the ChatGPT desktop app so it discovers `.agents/plugins/marketplace.json`.
+4. Open the Plugins Directory and select **Talentry - Crawl & Match** as the marketplace source.
+5. Install the **Talentry - Crawl & Match** plugin and start a new conversation.
 
 ## Development
 
 The plugin requires Python 3 and uses only the Python standard library at runtime.
 
-Run the test suite from the repository root:
+Run the test suite from the plugin directory:
 
 ```sh
+cd plugins/talentry-crawl-and-match
 python3 -m unittest discover -s tests -v
 ```
 
